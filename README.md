@@ -6,10 +6,9 @@ This Python utility converts Jupyter Notebooks (.ipynb) into Microsoft Word Docu
 1. Clone the repository:
 
 ```
-git clone https://github.com/your-repository/jupyter-to-docx.git
-cd jupyter-to-docx
+git clone https://github.com/petrsokerin/markdown_parser.git
+cd markdown_parser
 ```
-
 
 2. Install the required dependencies:
 
