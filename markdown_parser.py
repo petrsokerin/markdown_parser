@@ -12,11 +12,36 @@ def parse_notebook(file: Dict) -> Document:
     document = Document()
     for cell in file['cells']:
         if cell['cell_type'] == 'markdown':
-            paragraph = parse_cell(cell['source'])
+            paragraph = parse_markdown_cell(cell['source'])
+            paragraph = ' '.join([word for word in paragraph.split(' ') if len(word) < 100])
             document.add_paragraph(paragraph)
+        elif cell['cell_type'] == 'code':
+            code = ''.join(cell['source'])
+            comments = extract_comments(code)
+            if comments:
+                comments = '$CODE COMMENTS\n' + '\n'.join(comments) + '\n$END CODE COMMENTS\n'
+                document.add_paragraph(comments)
     return document
 
-def parse_cell(lines: List) -> str:
+def extract_comments(code):
+    comments = []
+    in_comment_block = False
+    lines = code.split('\n')
+    for line in lines:
+        line = line.strip()
+        if line.startswith('#'):
+            comments.append(line.lstrip('#').strip())
+        if line.startswith('"""') or line.startswith("'''"):
+            in_comment_block = not in_comment_block
+            if in_comment_block:
+                comments.append(line)
+            else:
+                comments[-1] += '\n' + line
+        elif in_comment_block:
+            comments[-1] += '\n' + line
+    return comments
+
+def parse_markdown_cell(lines: List) -> str:
     paragraph = ''
     for line in lines:
         if "![" not in line: # drop pictures
